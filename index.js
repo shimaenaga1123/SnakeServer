@@ -214,6 +214,30 @@ net
           break;
         }
 
+        case "/getRanking": {
+          // client 테이블에서 bestScore가 높은 순서로 10개 가져와 uid만 반환
+          db("client")
+            .select("uid")
+            .orderBy("bestScore", "desc")
+            .limit(10)
+            .then((rows) => {
+              const ranking = rows.map((row) => row.uid);
+              sock.write(
+                JSON.stringify({
+                  status: 200,
+                  text: ranking.toString() + ";",
+                }) + "\n"
+              );
+            })
+            .catch((err) => {
+              console.error("데이터베이스 오류:", err);
+              sock.write(
+                JSON.stringify({ status: 500, text: "데이터베이스 오류" }) +
+                  "\n"
+              );
+            });
+        }
+
         default:
           sock.write(
             JSON.stringify({ status: 404, text: "Unknown endpoint" }) + "\n"
@@ -224,4 +248,3 @@ net
     sock.on("error", console.error);
   })
   .listen(PORT, HOST, () => console.log(`TCP server on ${HOST}:${PORT}`));
-
