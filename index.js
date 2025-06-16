@@ -265,7 +265,7 @@ net
                 );
                 return;
               }
-
+              console.log("클라이언트 정보:", client);
               // 현재 bestScore보다 높을 때만 업데이트
               if (client.bestScore === null || client.bestScore < score) {
                 return db("client")
