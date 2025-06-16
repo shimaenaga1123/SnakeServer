@@ -209,6 +209,37 @@ net
           break;
         }
 
+        case "/updateName": {
+          const { clientID, name } = parsed;
+          if (!clientID || !name) {
+            sock.write(
+              JSON.stringify({
+                status: 400,
+                text: "clientID와 name이 필요합니다.",
+              }) + "\n"
+            );
+            break;
+          }
+          db("client")
+            .where({ uid: clientID })
+            .update({ name })
+            .then(() => {
+              sock.write(
+                JSON.stringify({
+                  status: 200,
+                  text: "이름을 업데이트했습니다.",
+                }) + "\n"
+              );
+            })
+            .catch((err) => {
+              console.error("데이터베이스 오류:", err);
+              sock.write(
+                JSON.stringify({ status: 500, text: "데이터베이스 오류" }) +
+                  "\n"
+              );
+            });
+        }
+
         case "/updateScore": {
           const { clientID, score } = parsed;
           if (!clientID || score == null) {
