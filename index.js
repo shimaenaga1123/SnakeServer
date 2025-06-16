@@ -294,6 +294,7 @@ net
                   "\n"
               );
             });
+          break;
         }
 
         case "/getClientInfo": {
