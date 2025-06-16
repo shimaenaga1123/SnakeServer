@@ -209,12 +209,70 @@ net
           break;
         }
 
+        case "/updateScore": {
+          const { clientID, score } = parsed;
+          if (!clientID || score == null) {
+            sock.write(
+              JSON.stringify({
+                status: 400,
+                text: "clientID와 score가 필요합니다.",
+              }) + "\n"
+            );
+            break;
+          }
+
+          db("client")
+            .where({ uid: clientID })
+            .first()
+            .then((client) => {
+              if (!client) {
+                sock.write(
+                  JSON.stringify({
+                    status: 404,
+                    text: "클라이언트를 찾을 수 없습니다.",
+                  }) + "\n"
+                );
+                return;
+              }
+
+              // 현재 bestScore보다 높을 때만 업데이트
+              if (client.bestScore === null || client.bestScore < score) {
+                return db("client")
+                  .where({ uid: clientID })
+                  .update({ bestScore: score })
+                  .then(() => {
+                    sock.write(
+                      JSON.stringify({
+                        status: 200,
+                        text: "점수를 업데이트했습니다.",
+                      }) + "\n"
+                    );
+                  });
+              } else {
+                sock.write(
+                  JSON.stringify({
+                    status: 200,
+                    text: "최고 점수가 아니므로 업데이트하지 않습니다.",
+                  }) + "\n"
+                );
+              }
+            })
+            .catch((err) => {
+              console.error("데이터베이스 오류:", err);
+              sock.write(
+                JSON.stringify({ status: 500, text: "데이터베이스 오류" }) +
+                  "\n"
+              );
+            });
+          break;
+        }
+
         case "/ping": {
           sock.write(JSON.stringify({ status: 200, text: "Pong!" }) + "\n");
           break;
         }
 
-        case "/getRanking": {
+        case "/getRankings": {
           // client 테이블에서 bestScore가 높은 순서로 10개 가져와 uid만 반환
           db("client")
             .select("uid")
