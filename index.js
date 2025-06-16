@@ -238,6 +238,7 @@ net
                   "\n"
               );
             });
+          break;
         }
 
         case "/updateScore": {
@@ -307,10 +308,7 @@ net
           // client 테이블에서 bestScore가 높은 순서로 10개 가져와 uid만 반환
           db("client")
             .select("uid")
-            .orderBy([
-              { column: "bestScore", order: "desc" }, // Primary sort: by bestScore descending
-              { column: "uid", order: "asc" }, // Tie-breaker: by uid ascending
-            ])
+            .orderBy("bestScore", "desc")
             .limit(10)
             .then((rows) => {
               const ranking = rows.map((row) => row.uid);
