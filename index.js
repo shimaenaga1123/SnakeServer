@@ -314,7 +314,7 @@ net
               sock.write(
                 JSON.stringify({
                   status: 200,
-                  text: ranking.toString() + ";",
+                  text: ranking.join(",") + ";",
                 }) + "\n"
               );
             })
