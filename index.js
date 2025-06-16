@@ -58,7 +58,7 @@ net
           // 랜덤한 클라이언트 ID(char) 생성 16자
           const clientID = Math.random().toString(36).substring(2, 18);
           db("client")
-            .insert({ uid: clientID })
+            .insert({ uid: clientID, name: "Unknown", bestScore: 0 })
             .then(() => {
               console.log("클라이언트 ID 저장:", clientID);
             })
