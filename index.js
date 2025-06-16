@@ -296,6 +296,40 @@ net
             });
         }
 
+        case "/getClientInfo": {
+          const { clientID } = parsed;
+          if (!clientID) {
+            sock.write(
+              JSON.stringify({ status: 400, text: "clientID가 필요합니다." }) +
+                "\n"
+            );
+            break;
+          }
+          db("client")
+            .where({ uid: clientID })
+            .first()
+            .then((row) => {
+              if (row) {
+                sock.write(JSON.stringify({ ...row, status: 200 }) + "\n");
+              } else {
+                sock.write(
+                  JSON.stringify({
+                    status: 404,
+                    text: "클라이언트를 찾을 수 없습니다.",
+                  }) + "\n"
+                );
+              }
+            })
+            .catch((err) => {
+              console.error("데이터베이스 오류:", err);
+              sock.write(
+                JSON.stringify({ status: 500, text: "데이터베이스 오류" }) +
+                  "\n"
+              );
+            });
+          break;
+        }
+
         default:
           sock.write(
             JSON.stringify({ status: 404, text: "Unknown endpoint" }) + "\n"
