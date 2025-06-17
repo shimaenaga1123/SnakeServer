@@ -244,7 +244,7 @@ net
         case "/us": {
           // updateScore
           const { cl, sc } = parsed;
-          if (!cl || score == null) {
+          if (!cl || sc == null) {
             sock.write(
               JSON.stringify({
                 status: 400,
