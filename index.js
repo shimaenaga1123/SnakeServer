@@ -241,9 +241,10 @@ net
           break;
         }
 
-        case "/updateScore": {
-          const { clientID, score } = parsed;
-          if (!clientID || score == null) {
+        case "/us": {
+          // updateScore
+          const { cl, sc } = parsed;
+          if (!cl || score == null) {
             sock.write(
               JSON.stringify({
                 status: 400,
@@ -254,7 +255,7 @@ net
           }
 
           db("client")
-            .where({ uid: clientID })
+            .where({ uid: cl })
             .first()
             .then((client) => {
               if (!client) {
@@ -268,10 +269,10 @@ net
               }
               console.log("클라이언트 정보:", client);
               // 현재 bestScore보다 높을 때만 업데이트
-              if (client.bestScore === null || client.bestScore < score) {
+              if (client.bestScore === null || client.bestScore < sc) {
                 return db("client")
-                  .where({ uid: clientID })
-                  .update({ bestScore: score })
+                  .where({ uid: cl })
+                  .update({ bestScore: sc })
                   .then(() => {
                     sock.write(
                       JSON.stringify({
