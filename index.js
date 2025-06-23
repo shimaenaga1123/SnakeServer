@@ -28,9 +28,23 @@ db.on("error", (error) => {
 const PORT = 12345;
 const HOST = "0.0.0.0"; // 어디서든 접속 허용
 
+// IP별 연결 수 추적용 객체
+const ipConnectionCount = {};
+const MAX_CONNECTIONS_PER_IP = 10; // IP당 최대 연결 수
+
 net
   .createServer((sock) => {
-    console.log("📡", sock.remoteAddress);
+    const ip = sock.remoteAddress;
+    ipConnectionCount[ip] = (ipConnectionCount[ip] || 0) + 1;
+    if (ipConnectionCount[ip] > MAX_CONNECTIONS_PER_IP) {
+      sock.write(
+        JSON.stringify({ status: 429, text: "동일 IP에서의 최대 동시 접속 수를 초과했습니다." }) + "\n"
+      );
+      sock.destroy();
+      ipConnectionCount[ip]--;
+      return;
+    }
+    console.log("📡", ip);
 
     sock.on("data", (chunk) => {
       const raw = chunk.toString().trim();
@@ -372,5 +386,9 @@ net
     });
 
     sock.on("error", console.error);
+    sock.on("close", () => {
+      ipConnectionCount[ip] = Math.max(0, (ipConnectionCount[ip] || 1) - 1);
+    });
   })
-  .listen(PORT, HOST, () => console.log(`TCP server on ${HOST}:${PORT}`));
+  .listen(PORT, HOST, () => console.log(`서버가 ${HOST}:${PORT}에서 시작되었습니다.`)
+);
